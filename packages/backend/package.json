@@ -1,0 +1,38 @@
+{
+  "name": "@pochi-langu/backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src vitest.config.ts --max-warnings 0",
+    "test": "vitest run --passWithNoTests",
+    "migrate": "tsx ../../node_modules/knex/bin/cli.js --knexfile src/db/knexfile.ts migrate:latest",
+    "migrate:rollback": "tsx ../../node_modules/knex/bin/cli.js --knexfile src/db/knexfile.ts migrate:rollback",
+    "migrate:make": "knex --knexfile src/db/knexfile.ts migrate:make",
+    "provision:roles": "tsx scripts/provision-roles.ts"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "knex": "^3.1.0",
+    "pg": "^8.12.0",
+    "pino": "^9.2.0",
+    "pino-pretty": "^13.0.0",
+    "rate-limiter-flexible": "^5.0.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.5",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.0",
+    "fast-check": "^3.23.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^5.0.3"
+  }
+}

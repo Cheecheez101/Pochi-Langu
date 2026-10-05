@@ -1,0 +1,11 @@
+node_modules
+.env
+.env.*
+!.env.example
+coverage
+npm-debug.log*
+dist
+.vite
+.DS_Store
+packages/backend/dist
+packages/frontend/dist

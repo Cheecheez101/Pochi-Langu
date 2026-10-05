@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: pochi_langu
+          POSTGRES_USER: pochi_langu
+          POSTGRES_PASSWORD: ci-admin-password
+        ports:
+          - 15432:5432
+        options: >-
+          --health-cmd "pg_isready -U pochi_langu -d pochi_langu"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Configure database
+        run: |
+          echo "POSTGRES_HOST=localhost" >> "$GITHUB_ENV"
+          echo "POSTGRES_PORT=15432" >> "$GITHUB_ENV"
+          echo "POSTGRES_DB=pochi_langu" >> "$GITHUB_ENV"
+          echo "POSTGRES_USER=pochi_langu_migration" >> "$GITHUB_ENV"
+          echo "POSTGRES_PASSWORD=ci-migration-password" >> "$GITHUB_ENV"
+          echo "POSTGRES_ADMIN_USER=pochi_langu" >> "$GITHUB_ENV"
+          echo "POSTGRES_ADMIN_PASSWORD=ci-admin-password" >> "$GITHUB_ENV"
+          echo "POSTGRES_MIGRATION_PASSWORD=ci-migration-password" >> "$GITHUB_ENV"
+          echo "POSTGRES_APP_PASSWORD=ci-app-password" >> "$GITHUB_ENV"
+
+      - name: Provision database roles
+        run: npm run provision:roles
+
+      - name: Migrate database
+        run: npm run migrate
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+      - name: Dependency audit
+        run: npm audit --audit-level=high
