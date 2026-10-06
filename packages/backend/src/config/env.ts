@@ -30,6 +30,13 @@ export const envSchema = z.object({
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60000),
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(120),
+  DARAJA_BASE_URL: z.string().url().default('https://sandbox.safaricom.co.ke'),
+  DARAJA_CONSUMER_KEY: z.string().optional(),
+  DARAJA_CONSUMER_SECRET: z.string().optional(),
+  DARAJA_BUSINESS_SHORTCODE: z.string().regex(/^\d+$/).optional(),
+  DARAJA_PASSKEY: z.string().optional(),
+  DARAJA_CALLBACK_URL: z.string().url().optional(),
+  DARAJA_TRANSACTION_DESCRIPTION: z.string().min(1).max(100).default('Pochi Langu deposit'),
 }).superRefine((values, context) => {
   if (values.NODE_ENV === 'production' && !values.POSTGRES_CA_CERT && !values.POSTGRES_USE_SYSTEM_CA) {
     context.addIssue({

@@ -12,6 +12,7 @@
     "lint": "npm run lint --workspace @pochi-langu/backend && npm run lint --workspace @pochi-langu/frontend",
     "typecheck": "npm run typecheck --workspace @pochi-langu/backend && npm run typecheck --workspace @pochi-langu/frontend",
     "test": "npm run test --workspace @pochi-langu/backend && npm run test --workspace @pochi-langu/frontend",
+    "test:e2e": "npm run test:e2e --workspace @pochi-langu/frontend",
     "migrate": "npm run migrate --workspace @pochi-langu/backend",
     "migrate:rollback": "npm run migrate:rollback --workspace @pochi-langu/backend",
     "provision:roles": "npm run provision:roles --workspace @pochi-langu/backend"

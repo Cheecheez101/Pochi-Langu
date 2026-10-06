@@ -126,6 +126,22 @@ describe('Phase 1 PostgreSQL catalog and runtime boundary', () => {
     ])).rejects.toThrow();
   });
 
+  it('keeps identity writes behind the migration-owned registration function', async () => {
+    const privileges = await appRole.raw(`
+      SELECT
+        has_table_privilege(current_user, 'public.user_profiles', 'SELECT') AS profile_select,
+        has_table_privilege(current_user, 'public.user_profiles', 'INSERT') AS profile_insert,
+        has_table_privilege(current_user, 'public.user_credentials', 'INSERT') AS credential_insert,
+        has_function_privilege(current_user, 'public.register_identity_user(text,text,text)', 'EXECUTE') AS register_execute
+    `);
+    expect(privileges.rows[0]).toEqual({
+      profile_select: true,
+      profile_insert: false,
+      credential_insert: false,
+      register_execute: true,
+    });
+  });
+
   it('refuses destructive rollback while financial tables contain rows', async () => {
     await expect(initialDown(admin)).rejects.toThrow(/Refusing destructive rollback/);
   });

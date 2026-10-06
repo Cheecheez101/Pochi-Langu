@@ -264,4 +264,50 @@ describe('Section 28 PostgreSQL foundation', () => {
     await expect(database('wallets').where({ id: first.walletId }).update({ user_id: second.userId }))
       .rejects.toThrow();
   });
+
+  it('duplicate Daraja callbacks remain idempotent', async () => {
+    const { userId, walletId } = await createUserWallet();
+    const created = await database.raw<{
+      rows: Array<{ deposit_id: string; transaction_id: string }>
+    }>(
+      'SELECT * FROM create_pending_deposit(?, ?, ?, ?, ?)',
+      [userId, 3000, '+254712345678', `deposit-idempotent-${randomUUID()}`, 'daraja'],
+    );
+    const depositId = created.rows[0]?.deposit_id;
+    const transactionId = created.rows[0]?.transaction_id;
+    const providerReference = `DARAJA-IDEM-${randomUUID()}`;
+    expect(depositId).toBeTruthy();
+    expect(transactionId).toBeTruthy();
+
+    await database.raw(
+      'SELECT * FROM apply_deposit_result(?, ?, ?::deposit_status, ?, ?, ?::jsonb)',
+      [depositId, providerReference, 'succeeded', 0, 'completed', '{}'],
+    );
+    await database.raw(
+      'SELECT * FROM apply_deposit_result(?, ?, ?::deposit_status, ?, ?, ?::jsonb)',
+      [depositId, providerReference, 'succeeded', 0, 'completed', '{}'],
+    );
+
+    const journalEntries = await database('journal_entries').where({ source_type: 'deposit', source_reference: depositId });
+    expect(journalEntries).toHaveLength(1);
+
+    const wallet = await database('wallets').where({ id: walletId }).first();
+    const transaction = await database('transactions').where({ id: transactionId }).first();
+    expect(wallet?.available_minor).toBe('3000');
+    expect(transaction?.status).toBe('succeeded');
+  });
+
+  it('creates deposits as pending without automatic provider settlement', async () => {
+    const { userId } = await createUserWallet();
+    const created = await database.raw<{
+      rows: Array<{ deposit_id: string; status: string }>
+    }>(
+      'SELECT * FROM create_pending_deposit(?, ?, ?, ?, ?)',
+      [userId, 1500, '+254712345678', `deposit-pending-${randomUUID()}`, 'daraja'],
+    );
+    expect(created.rows[0]?.status).toBe('pending');
+    const deposit = await database('deposits').where({ id: created.rows[0]?.deposit_id }).first();
+    expect(deposit?.status).toBe('pending');
+    expect(deposit?.journal_entry_id).toBeNull();
+  });
 });

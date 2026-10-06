@@ -2,8 +2,10 @@
 
 ## Current phase
 
-Phase 1: financial core remediation has passed the fresh Inspector/Judge
-re-audit. Phase 2 identity work is authorized. M-Pesa remains prohibited.
+Phase 4: savings foundation is implemented on the Phase 3 wallet/deposit and
+Phase 2 identity
+boundary. Phase 1 financial core remediation and Phase 2 identity/frontend
+foundation remain complete. M-Pesa remains prohibited.
 
 ## Scope currently included
 
@@ -19,12 +21,19 @@ re-audit. Phase 2 identity work is authorized. M-Pesa remains prohibited.
 - local Docker foundation for PostgreSQL
 - architecture and ADR documentation
 - CI smoke workflow
+- server-side identity sessions, role-aware authorization, and read-only admin
+  operational routes
+- responsive public, authenticated, and admin React application shell
+- authenticated wallet balance and deposit history APIs and UX
+- ledger-first Daraja sandbox deposit settlement and reconciliation event records
+- Daraja sandbox STK Push initiation and callback processing
+- savings goals, vault lock rules, internal ledger transfers, and progress UX
 
 ## Scope intentionally deferred
 
 - M-Pesa payments and callbacks
-- deposits, withdrawals, vault transfers, savings logic
-- public financial APIs and M-Pesa provider execution
+- withdrawals
+- M-Pesa provider execution
 - production deployment or secrets management
 - financial account creation business processes beyond the architectural guardrails
 
@@ -54,8 +63,8 @@ re-audit. Phase 2 identity work is authorized. M-Pesa remains prohibited.
 Database verification used database `pochi_langu`, migration role
 `pochi_langu_migration` for schema/test setup, and runtime role
 `pochi_langu_app` for runtime verification. The standardized Phase 1 listener
-is host port `15432` and reports PostgreSQL 16. No Phase 2 or M-Pesa
-functionality is implemented.
+is host port `15432` and reports PostgreSQL 16. No M-Pesa functionality is
+implemented.
 
 ## Independent gate audit
 
@@ -100,4 +109,5 @@ another role. Committed reversal concurrency produced exactly one committed
 reversal. Startup accepted the normal role and rejected superuser, owner, and
 owner-member identities. Invalid credentials failed closed.
 
-**Phase 2: AUTHORIZED for identity foundations only. M-Pesa: PROHIBITED.**
+**Phase 4 savings foundation: IMPLEMENTED with internal ledger transfers only.
+Daraja is sandbox-only; live-money payout functionality remains PROHIBITED.**
